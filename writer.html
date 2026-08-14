@@ -251,15 +251,15 @@ const supabaseClient =
 async function checkUser() {
 
     const {
-        data: { user }
-    } = await supabaseClient.auth.getUser();
+        data: { session }
+    } = await supabaseClient.auth.getSession();
 
+    if (!session) {
 
-    if (!user) {
+        document.body.innerHTML =
+            "<h2 style='text-align:center;margin-top:100px'>نشست ورود پیدا نشد.</h2>";
 
-        window.location.href =
-            "login.html";
-
+        return;
     }
 
 }
