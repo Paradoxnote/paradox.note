@@ -171,9 +171,7 @@ async function login() {
 if (error) {
 
     message.innerText =
-        error.message;
-
-    console.error(error);
+        "خطا: " + error.message;
 
     return;
 }
