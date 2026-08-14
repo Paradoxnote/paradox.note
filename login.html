@@ -126,7 +126,7 @@
 
 const SUPABASE_URL = "https://ordoglrqdizeisyoupsf.supabase.co/rest/v1/";
 
-const SUPABASE_KEY = "sb_publishable_CxL8uf4ajAFpbyCTGpXz3Q_bk23Up5W";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9yZG9nbHJxZGl6ZWlzeW91cHNmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY2NTA0MzQsImV4cCI6MjEwMjIyNjQzNH0.G7c1b37wVClz5Lb2ipUoup62Ppwg0o3Bgt31VBWeToE";
 
 const supabaseClient =
     window.supabase.createClient(
@@ -168,19 +168,16 @@ async function login() {
             password: password
 
         });
-
 if (error) {
 
     message.innerText =
-        error.message;
+        "ورود ناموفق بود.";
 
     console.error(error);
 
     return;
 }
-
-
-    message.innerText =
+     message.innerText =
         "ورود موفق بود!";
 
 
