@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>مدیریت | Paradox</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+
+        body {
+
+            margin: 0;
+
+            background: #101010;
+
+            color: white;
+
+            font-family: Tahoma, sans-serif;
+
+        }
+
+
+        header {
+
+            height: 70px;
+
+            background: #181818;
+
+            border-bottom: 1px solid #292929;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            padding: 0 40px;
+
+        }
+
+
+        .logo {
+
+            font-size: 24px;
+
+            font-weight: bold;
+
+        }
+
+
+        .logout {
+
+            background: transparent;
+
+            color: #ccc;
+
+            border: 1px solid #444;
+
+            padding: 9px 18px;
+
+            border-radius: 7px;
+
+            cursor: pointer;
+
+        }
+
+
+        .container {
+
+            width: 90%;
+
+            max-width: 1000px;
+
+            margin: 40px auto;
+
+        }
+
+
+        h1 {
+
+            margin-bottom: 30px;
+
+        }
+
+
+        .post {
+
+            background: #181818;
+
+            border: 1px solid #292929;
+
+            border-radius: 12px;
+
+            padding: 25px;
+
+            margin-bottom: 20px;
+
+        }
+
+
+        .post h2 {
+
+            margin-top: 0;
+
+        }
+
+
+        .post-info {
+
+            color: #888;
+
+            font-size: 14px;
+
+            margin-bottom: 15px;
+
+        }
+
+
+        .post-content {
+
+            color: #ccc;
+
+            line-height: 1.9;
+
+            white-space: pre-wrap;
+
+        }
+
+
+        .buttons {
+
+            display: flex;
+
+            gap: 10px;
+
+            margin-top: 20px;
+
+        }
+
+
+        button {
+
+            border: none;
+
+            border-radius: 7px;
+
+            padding: 11px 20px;
+
+            cursor: pointer;
+
+            font-family: inherit;
+
+            font-weight: bold;
+
+        }
+
+
+        .publish {
+
+            background: white;
+
+            color: #111;
+
+        }
+
+
+        .reject {
+
+            background: #333;
+
+            color: white;
+
+        }
+
+
+        #message {
+
+            color: #aaa;
+
+            margin-bottom: 20px;
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<header>
+
+    <div class="logo">
+        Paradox — مدیریت
+    </div>
+
+
+    <button
+        class="logout"
+        onclick="logout()">
+
+        خروج
+
+    </button>
+
+</header>
+
+
+<main class="container">
+
+    <h1>
+        نوشته‌های در انتظار بررسی
+    </h1>
+
+
+    <div id="message">
+        در حال بررسی دسترسی...
+    </div>
+
+
+    <div id="posts"></div>
+
+</main>
+
+
+
+<script>
+
+
+const SUPABASE_URL =
+    "https://ordoglrqdizeisyoupsf.supabase.co";
+
+
+const SUPABASE_KEY =
+    "sb_publishable_CxL8uf4ajAFpbyCTGpXz3Q_bk23Up5W";
+
+
+const supabaseClient =
+    window.supabase.createClient(
+
+        SUPABASE_URL,
+
+        SUPABASE_KEY
+
+    );
+
+
+
+async function checkAdmin() {
+
+    const {
+
+        data: {
+            session
+
+        }
+
+    } = await supabaseClient
+        .auth
+        .getSession();
+
+
+    if (!session) {
+
+        window.location.href =
+            "login.html";
+
+        return false;
+
+    }
+
+
+    const {
+
+        data,
+        error
+
+    } = await supabaseClient
+        .rpc("is_admin");
+
+
+    if (error) {
+
+        console.error(error);
+
+        document.getElementById("message").innerText =
+            "خطا در بررسی دسترسی.";
+
+        return false;
+
+    }
+
+
+    if (!data) {
+
+        document.getElementById("message").innerText =
+            "شما اجازه ورود به بخش مدیریت را ندارید.";
+
+        return false;
+
+    }
+
+
+    return true;
+
+}
+
+
+
+async function loadPosts() {
+
+    const {
+
+        data,
+        error
+
+    } = await supabaseClient
+
+        .from("posts")
+
+        .select("*")
+
+        .eq("status", "pending")
+
+        .order(
+            "created_at",
+            {
+                ascending: false
+            }
+        );
+
+
+    if (error) {
+
+        console.error(error);
+
+        document.getElementById("message").innerText =
+            "خطا در دریافت نوشته‌ها.";
+
+        return;
+
+    }
+
+
+    const container =
+        document.getElementById("posts");
+
+
+    container.innerHTML = "";
+
+
+    if (!data || data.length === 0) {
+
+        container.innerHTML =
+            "<p>نوشته‌ای برای بررسی وجود ندارد.</p>";
+
+        return;
+
+    }
+
+
+    data.forEach(post => {
+
+        const article =
+            document.createElement("article");
+
+
+        article.className =
+            "post";
+
+
+        article.innerHTML = `
+
+            <h2>
+                ${escapeHtml(post.title)}
+            </h2>
+
+            <div class="post-info">
+                زمان ارسال:
+                ${new Date(post.created_at).toLocaleString("fa-IR")}
+            </div>
+
+            <div class="post-content">
+                ${escapeHtml(post.content)}
+            </div>
+
+            <div class="buttons">
+
+                <button
+                    class="publish"
+                    onclick="updatePost('${post.id}', 'published')">
+
+                    انتشار
+
+                </button>
+
+
+                <button
+                    class="reject"
+                    onclick="updatePost('${post.id}', 'rejected')">
+
+                    رد
+
+                </button>
+
+            </div>
+
+        `;
+
+
+        container.appendChild(article);
+
+    });
+
+}
+
+
+
+async function updatePost(id, status) {
+
+    const {
+
+        error
+
+    } = await supabaseClient
+
+        .from("posts")
+
+        .update({
+
+            status: status
+
+        })
+
+        .eq("id", id);
+
+
+    if (error) {
+
+        console.error(error);
+
+        alert(
+            "خطا: " + error.message
+        );
+
+        return;
+
+    }
+
+
+    loadPosts();
+
+}
+
+
+
+async function logout() {
+
+    await supabaseClient
+        .auth
+        .signOut();
+
+
+    window.location.href =
+        "login.html";
+
+}
+
+
+
+function escapeHtml(text) {
+
+    const div =
+        document.createElement("div");
+
+    div.textContent =
+        text;
+
+    return div.innerHTML;
+
+}
+
+
+
+async function start() {
+
+    const allowed =
+        await checkAdmin();
+
+
+    if (allowed) {
+
+        document.getElementById("message").innerText =
+            "";
+
+        loadPosts();
+
+    }
+
+}
+
+
+start();
+
+
+</script>
+
+
+</body>
+
+</html>
