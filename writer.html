@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -16,13 +15,14 @@
 
         body {
             margin: 0;
+            min-height: 100vh;
             background: #101010;
             color: white;
             font-family: Tahoma, sans-serif;
         }
 
         header {
-            height: 70px;
+            min-height: 70px;
             background: #181818;
             border-bottom: 1px solid #292929;
 
@@ -30,7 +30,7 @@
             align-items: center;
             justify-content: space-between;
 
-            padding: 0 40px;
+            padding: 15px 30px;
         }
 
         .logo {
@@ -39,29 +39,25 @@
         }
 
         .logout {
-            background: transparent;
             border: 1px solid #444;
+            background: transparent;
             color: #ccc;
-
-            padding: 9px 18px;
-            border-radius: 7px;
-
+            border-radius: 8px;
+            padding: 10px 18px;
             cursor: pointer;
+            font-family: inherit;
         }
 
         .container {
-            width: 90%;
+            width: 92%;
             max-width: 900px;
-
             margin: 40px auto;
         }
 
         .panel {
             background: #181818;
             border: 1px solid #292929;
-
             border-radius: 14px;
-
             padding: 30px;
         }
 
@@ -69,72 +65,97 @@
             margin-top: 0;
         }
 
+        .subtitle {
+            color: #888;
+            line-height: 1.8;
+        }
+
         label {
             display: block;
-
-            margin-top: 25px;
+            margin-top: 24px;
             margin-bottom: 8px;
-
-            color: #ccc;
+            color: #ddd;
         }
 
         input,
         textarea {
             width: 100%;
-
+            border: 1px solid #333;
             background: #101010;
             color: white;
-
-            border: 1px solid #333;
             border-radius: 8px;
-
             padding: 13px;
-
             font-family: inherit;
+            font-size: 15px;
+            outline: none;
+        }
+
+        input:focus,
+        textarea:focus {
+            border-color: #666;
         }
 
         textarea {
-            min-height: 300px;
+            min-height: 320px;
             resize: vertical;
-            line-height: 1.8;
+            line-height: 2;
         }
 
         input[type="file"] {
             padding: 10px;
         }
 
+        .file-info {
+            margin-top: 7px;
+            color: #777;
+            font-size: 13px;
+        }
+
         .buttons {
             display: flex;
+            flex-wrap: wrap;
             gap: 10px;
-
             margin-top: 30px;
         }
 
-        button {
-            padding: 13px 25px;
-
+        button.action {
             border: none;
             border-radius: 8px;
-
+            padding: 13px 22px;
             cursor: pointer;
-
             font-family: inherit;
             font-weight: bold;
         }
 
-        .save {
+        .draft {
             background: #333;
             color: white;
         }
 
-        .publish {
+        .pending {
             background: white;
             color: #111;
         }
 
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
         #message {
             margin-top: 20px;
+            padding: 12px;
+            border-radius: 8px;
+            background: #111;
             color: #aaa;
+            line-height: 1.8;
+            white-space: pre-wrap;
+        }
+
+        .user-box {
+            color: #888;
+            font-size: 13px;
+            margin-bottom: 20px;
         }
     </style>
 </head>
@@ -142,530 +163,493 @@
 <body>
 
 <header>
+    <div class="logo">Paradox</div>
 
-    <div class="logo">
-        Paradox
-    </div>
-
-    <button class="logout" onclick="logout()">
+    <button class="logout" type="button" onclick="logout()">
         خروج
     </button>
-
 </header>
-
 
 <main class="container">
 
     <div class="panel">
 
-        <h1>
-            نوشتن متن جدید
-        </h1>
+        <h1>نوشتن متن جدید</h1>
 
-        <label>
-            عنوان
-        </label>
+        <div class="subtitle">
+            متن خود را بنویسید. می‌توانید یک تصویر و یک فایل پیوست هم اضافه کنید.
+        </div>
+
+        <div id="userBox" class="user-box">
+            در حال بررسی حساب...
+        </div>
+
+        <label for="title">عنوان</label>
 
         <input
-            type="text"
             id="title"
+            type="text"
             placeholder="عنوان متن"
+            maxlength="250"
         >
 
-
-        <label>
-            متن
-        </label>
+        <label for="content">متن</label>
 
         <textarea
             id="content"
             placeholder="متن خود را اینجا بنویسید..."
         ></textarea>
 
-
-        <label>
-            تصویر
-        </label>
+        <label for="image">تصویر</label>
 
         <input
-            type="file"
             id="image"
+            type="file"
             accept="image/*"
         >
 
+        <div id="imageInfo" class="file-info">
+            تصویری انتخاب نشده است.
+        </div>
 
-        <label>
-            فایل پیوست
-        </label>
+        <label for="attachment">فایل پیوست</label>
 
         <input
-            type="file"
             id="attachment"
+            type="file"
         >
 
+        <div id="fileInfo" class="file-info">
+            فایلی انتخاب نشده است.
+        </div>
 
         <div class="buttons">
 
             <button
-                class="save"
+                id="draftButton"
+                class="action draft"
+                type="button"
                 onclick="saveDraft()"
             >
                 ذخیره پیش‌نویس
             </button>
 
             <button
-                class="publish"
-                onclick="publishPost()"
+                id="publishButton"
+                class="action pending"
+                type="button"
+                onclick="submitForReview()"
             >
                 ارسال برای انتشار
             </button>
 
         </div>
 
-
-        <div id="message"></div>
+        <div id="message">
+            آماده.
+        </div>
 
     </div>
 
 </main>
 
-
 <script>
+    /*
+     * این دو مقدار را با مقادیر پروژه خودت جایگزین کن.
+     * Secret key را اینجا قرار نده.
+     */
 
-const SUPABASE_URL =
-    "https://ordoglrqdizeisyoupsf.supabase.co";
+    const SUPABASE_URL = "PROJECT_URL_خودت";
+    const SUPABASE_KEY = "PUBLISHABLE_KEY_خودت";
 
-const SUPABASE_KEY =
-    "sb_publishable_CxL8uf4ajAFpbyCTGpXz3Q_bk23Up5W";
-
-
-const supabaseClient =
-    window.supabase.createClient(
+    const supabaseClient = window.supabase.createClient(
         SUPABASE_URL,
         SUPABASE_KEY
     );
-async function uploadToStorage(file, bucket, userId) {
 
-    if (!file) {
-        return null;
+
+    function setMessage(text) {
+        document.getElementById("message").innerText = text;
     }
 
-    const safeName =
-        file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
 
-    const filePath =
-        userId + "/" +
-        Date.now() + "-" +
-        safeName;
+    function setButtonsDisabled(disabled) {
+        document.getElementById("draftButton").disabled = disabled;
+        document.getElementById("publishButton").disabled = disabled;
+    }
 
 
-    const { error } =
-        await supabaseClient
+    function getTitle() {
+        return document.getElementById("title").value.trim();
+    }
+
+
+    function getContent() {
+        return document.getElementById("content").value.trim();
+    }
+
+
+    function getImage() {
+        const input = document.getElementById("image");
+        return input.files && input.files.length > 0
+            ? input.files[0]
+            : null;
+    }
+
+
+    function getAttachment() {
+        const input = document.getElementById("attachment");
+        return input.files && input.files.length > 0
+            ? input.files[0]
+            : null;
+    }
+
+
+    function updateSelectedFileText() {
+
+        const image = getImage();
+        const attachment = getAttachment();
+
+        document.getElementById("imageInfo").innerText =
+            image
+                ? "تصویر: " + image.name
+                : "تصویری انتخاب نشده است.";
+
+        document.getElementById("fileInfo").innerText =
+            attachment
+                ? "فایل: " + attachment.name
+                : "فایلی انتخاب نشده است.";
+    }
+
+
+    async function getCurrentUser() {
+
+        const {
+            data,
+            error
+        } = await supabaseClient.auth.getUser();
+
+        if (error) {
+            throw error;
+        }
+
+        if (!data || !data.user) {
+            return null;
+        }
+
+        return data.user;
+    }
+
+
+    async function checkWriterAccess() {
+
+        const user = await getCurrentUser();
+
+        if (!user) {
+            window.location.href = "login.html";
+            return false;
+        }
+
+        /*
+         * تابع is_writer را قبلاً در Supabase ساخته‌ایم.
+         * این تابع باید برای writer و admin مقدار true برگرداند.
+         */
+
+        const {
+            data,
+            error
+        } = await supabaseClient.rpc("is_writer");
+
+        if (error) {
+            throw error;
+        }
+
+        if (data !== true) {
+
+            document.body.innerHTML = `
+                <div style="
+                    min-height:100vh;
+                    background:#101010;
+                    color:white;
+                    display:flex;
+                    align-items:center;
+                    justify-content:center;
+                    text-align:center;
+                    padding:30px;
+                    font-family:Tahoma;
+                ">
+                    شما اجازه ورود به پنل نویسندگان را ندارید.
+                </div>
+            `;
+
+            return false;
+        }
+
+        document.getElementById("userBox").innerText =
+            "حساب واردشده: " + user.email;
+
+        return true;
+    }
+
+
+    async function uploadToStorage(file, bucket, userId) {
+
+        if (!file) {
+            return null;
+        }
+
+        const safeName = file.name
+            .replace(/[^a-zA-Z0-9._-]/g, "_");
+
+        const filePath =
+            userId +
+            "/" +
+            Date.now() +
+            "-" +
+            safeName;
+
+        const {
+            error
+        } = await supabaseClient
             .storage
             .from(bucket)
-            .upload(filePath, file);
-
-
-    if (error) {
-        throw error;
-    }
-
-
-    return filePath;
-}
-
-// بررسی ورود نویسنده
-
-async function checkUser() {
-
-    const {
-        data: { session }
-    } = await supabaseClient
-        .auth
-        .getSession();
-
-
-    if (!session) {
-
-        window.location.href =
-            "login.html";
-
-        return false;
-    }
-
-
-    const {
-        data,
-        error
-    } = await supabaseClient
-        .rpc("is_writer");
-
-
-    if (error) {
-
-        console.error(error);
-
-        document.body.innerHTML = `
-            <div style="
-                text-align:center;
-                margin-top:100px;
-                font-family:Tahoma;
-                color:white;
-                background:#101010;
-                min-height:100vh;
-                padding:30px;
-            ">
-                خطا در بررسی دسترسی.
-            </div>
-        `;
-
-        return false;
-    }
-
-
-    if (!data) {
-
-        document.body.innerHTML = `
-            <div style="
-                text-align:center;
-                margin-top:100px;
-                font-family:Tahoma;
-                color:white;
-                background:#101010;
-                min-height:100vh;
-                padding:30px;
-            ">
-                شما اجازه ورود به پنل نویسندگان را ندارید.
-            </div>
-        `;
-
-        return false;
-    }
-
-
-    return true;
-}
-
-checkUser();
-
-
-// خروج
-
-async function logout() {
-
-    await supabaseClient.auth.signOut();
-
-    window.location.href =
-        "login.html";
-
-}
-
-
-// فعلاً فقط آزمایشی
-
-async function saveDraft() {
-
-    const title =
-        document.getElementById("title").value.trim();
-
-    const content =
-        document.getElementById("content").value.trim();
-
-    const image =
-        document.getElementById("image").files[0];
-
-    const attachment =
-        document.getElementById("attachment").files[0];
-
-    const message =
-        document.getElementById("message");
-
-
-    if (!title || !content) {
-
-        message.innerText =
-            "عنوان و متن را وارد کنید.";
-
-        return;
-    }
-
-
-    const {
-        data: { user }
-    } = await supabaseClient.auth.getUser();
-
-
-    if (!user) {
-
-        message.innerText =
-            "نشست ورود پیدا نشد.";
-
-        return;
-    }
-
-
-    try {
-
-        message.innerText =
-            "در حال آپلود فایل‌ها...";
-
-
-        // آپلود تصویر
-
-        let imagePath = null;
-
-        if (image) {
-
-            imagePath =
-                await uploadToStorage(
-                    image,
-                    "images",
-                    user.id
-                );
-
-        }
-
-
-        // آپلود فایل
-
-        let filePath = null;
-
-        if (attachment) {
-
-            filePath =
-                await uploadToStorage(
-                    attachment,
-                    "files",
-                    user.id
-                );
-
-        }
-
-
-        message.innerText =
-            "در حال ذخیره نوشته...";
-
-
-        // ذخیره اطلاعات در جدول posts
-
-        const { error } =
-            await supabaseClient
-                .from("posts")
-                .insert({
-
-                    title: title,
-
-                    content: content,
-
-                    image_url: imagePath,
-
-                    file_url: filePath,
-
-                    file_name:
-                        attachment
-                            ? attachment.name
-                            : null,
-
-                    author_id: user.id,
-
-                    status: "draft"
-
-                });
-
-
-        if (error) {
-            throw error;
-        }
-
-
-        message.innerText =
-            "نوشته و فایل‌ها با موفقیت ذخیره شدند.";
-
-
-    } catch (error) {
-
-        console.error(error);
-
-        message.innerText =
-            "خطا: " + error.message;
-
-    }
-
-}
-
-
-    const {
-        data: { user }
-    } = await supabaseClient.auth.getUser();
-
-
-    if (!user) {
-
-        message.innerText =
-            "نشست ورود پیدا نشد. دوباره وارد شوید.";
-
-        return;
-    }
-
-
-    message.innerText =
-        "در حال ذخیره...";
-
-
-    const { error } =
-        await supabaseClient
-            .from("posts")
-            .insert({
-
-                title: title,
-
-                content: content,
-
-                author_id: user.id,
-
-                status: "draft"
-
+            .upload(filePath, file, {
+                upsert: false
             });
 
-
-    if (error) {
-
-        console.error(error);
-
-        message.innerText =
-            "خطا: " + error.message;
-
-        return;
-    }
-
-
-    message.innerText =
-        "پیش‌نویس با موفقیت ذخیره شد.";
-
-}
-
-
-async function publishPost() {
-
-    const title =
-        document.getElementById("title").value.trim();
-
-    const content =
-        document.getElementById("content").value.trim();
-
-    const image =
-        document.getElementById("image").files[0];
-
-    const attachment =
-        document.getElementById("attachment").files[0];
-
-    const message =
-        document.getElementById("message");
-
-
-    if (!title || !content) {
-        message.innerText =
-            "عنوان و متن را وارد کنید.";
-        return;
-    }
-
-
-    const {
-        data: { user }
-    } = await supabaseClient.auth.getUser();
-
-
-    if (!user) {
-        message.innerText =
-            "نشست ورود پیدا نشد.";
-        return;
-    }
-
-
-    try {
-
-        message.innerText =
-            "در حال آماده‌سازی...";
-
-
-        let imagePath = null;
-        let filePath = null;
-
-
-        if (image) {
-
-            imagePath =
-                await uploadToStorage(
-                    image,
-                    "images",
-                    user.id
-                );
-
-        }
-
-
-        if (attachment) {
-
-            filePath =
-                await uploadToStorage(
-                    attachment,
-                    "files",
-                    user.id
-                );
-
-        }
-
-
-        const { error } =
-            await supabaseClient
-                .from("posts")
-                .insert({
-
-                    title: title,
-
-                    content: content,
-
-                    image_url: imagePath,
-
-                    file_url: filePath,
-
-                    file_name:
-                        attachment
-                            ? attachment.name
-                            : null,
-
-                    author_id: user.id,
-
-                    status: "pending"
-
-                });
-
-
         if (error) {
             throw error;
         }
 
-
-        message.innerText =
-            "متن برای بررسی مدیر فرستاده شد.";
-
-        document.getElementById("title").value = "";
-        document.getElementById("content").value = "";
-        document.getElementById("image").value = "";
-        document.getElementById("attachment").value = "";
-
-
-    } catch (error) {
-
-        console.error(error);
-
-        message.innerText =
-            "خطا: " + error.message;
-
+        return filePath;
     }
 
-</script>            
+
+    async function createPost(status) {
+
+        const title = getTitle();
+        const content = getContent();
+        const image = getImage();
+        const attachment = getAttachment();
+
+        if (!title) {
+            setMessage("عنوان را وارد کنید.");
+            return;
+        }
+
+        if (!content) {
+            setMessage("متن را وارد کنید.");
+            return;
+        }
+
+        setButtonsDisabled(true);
+
+        try {
+
+            const user = await getCurrentUser();
+
+            if (!user) {
+                throw new Error(
+                    "نشست ورود پیدا نشد. دوباره وارد شوید."
+                );
+            }
+
+            setMessage("در حال بررسی اطلاعات...");
+
+
+            /*
+             * محدودیت ساده برای جلوگیری از فایل‌های خیلی بزرگ.
+             * بعداً می‌توانیم اندازه دلخواه خودت را تعیین کنیم.
+             */
+
+            const MAX_IMAGE_SIZE =
+                10 * 1024 * 1024;
+
+            const MAX_FILE_SIZE =
+                20 * 1024 * 1024;
+
+
+            if (image && image.size > MAX_IMAGE_SIZE) {
+                throw new Error(
+                    "اندازه تصویر بیشتر از ۱۰ مگابایت است."
+                );
+            }
+
+
+            if (attachment && attachment.size > MAX_FILE_SIZE) {
+                throw new Error(
+                    "اندازه فایل بیشتر از ۲۰ مگابایت است."
+                );
+            }
+
+
+            let imagePath = null;
+            let filePath = null;
+
+
+            if (image) {
+
+                setMessage(
+                    "در حال آپلود تصویر..."
+                );
+
+                imagePath =
+                    await uploadToStorage(
+                        image,
+                        "images",
+                        user.id
+                    );
+            }
+
+
+            if (attachment) {
+
+                setMessage(
+                    "در حال آپلود فایل..."
+                );
+
+                filePath =
+                    await uploadToStorage(
+                        attachment,
+                        "files",
+                        user.id
+                    );
+            }
+
+
+            setMessage(
+                "در حال ذخیره نوشته..."
+            );
+
+
+            const {
+                error
+            } = await supabaseClient
+                .from("posts")
+                .insert({
+                    title: title,
+                    content: content,
+                    image_url: imagePath,
+                    file_url: filePath,
+                    file_name: attachment
+                        ? attachment.name
+                        : null,
+                    author_id: user.id,
+                    status: status
+                });
+
+
+            if (error) {
+                throw error;
+            }
+
+
+            if (status === "draft") {
+
+                setMessage(
+                    "پیش‌نویس با موفقیت ذخیره شد."
+                );
+
+            } else {
+
+                setMessage(
+                    "متن با موفقیت برای بررسی مدیر فرستاده شد."
+                );
+
+            }
+
+
+            document.getElementById("title").value = "";
+            document.getElementById("content").value = "";
+            document.getElementById("image").value = "";
+            document.getElementById("attachment").value = "";
+
+            updateSelectedFileText();
+
+
+        } catch (error) {
+
+            console.error(error);
+
+            setMessage(
+                "خطا:\n" +
+                (error && error.message
+                    ? error.message
+                    : String(error))
+            );
+
+        } finally {
+
+            setButtonsDisabled(false);
+        }
+    }
+
+
+    async function saveDraft() {
+        await createPost("draft");
+    }
+
+
+    async function submitForReview() {
+        await createPost("pending");
+    }
+
+
+    async function logout() {
+
+        await supabaseClient.auth.signOut();
+
+        window.location.href = "login.html";
+    }
+
+
+    document
+        .getElementById("image")
+        .addEventListener(
+            "change",
+            updateSelectedFileText
+        );
+
+
+    document
+        .getElementById("attachment")
+        .addEventListener(
+            "change",
+            updateSelectedFileText
+        );
+
+
+    async function start() {
+
+        try {
+
+            setMessage(
+                "در حال بررسی دسترسی..."
+            );
+
+            const allowed =
+                await checkWriterAccess();
+
+            if (allowed) {
+                setMessage("آماده.");
+            }
+
+        } catch (error) {
+
+            console.error(error);
+
+            setMessage(
+                "خطا در بررسی دسترسی:\n" +
+                (error && error.message
+                    ? error.message
+                    : String(error))
+            );
+        }
+    }
+
+
+    start();
+</script>
 
 </body>
-
-</html>
+    </html>
