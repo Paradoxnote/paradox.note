@@ -2,81 +2,109 @@
 <html lang="fa" dir="rtl">
 
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
 
     <title>Paradox</title>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <style>
+
         * {
             box-sizing: border-box;
         }
 
         body {
+
             margin: 0;
-            font-family: Tahoma, sans-serif;
+
             background: #101010;
+
             color: white;
+
+            font-family: Tahoma, sans-serif;
+
         }
 
-        /* نوار بالای سایت */
-
         header {
+
             height: 70px;
+
             background: #181818;
 
+            border-bottom: 1px solid #292929;
+
             display: flex;
+
             align-items: center;
+
             justify-content: space-between;
 
             padding: 0 40px;
 
-            border-bottom: 1px solid #292929;
         }
 
         .logo {
+
             font-size: 25px;
+
             font-weight: bold;
+
             letter-spacing: 2px;
+
         }
 
         nav a {
+
             color: #ccc;
+
             text-decoration: none;
+
             margin-right: 25px;
-            transition: 0.2s;
+
         }
 
         nav a:hover {
+
             color: white;
+
         }
 
-        /* بخش اصلی */
-
         .container {
+
             width: 90%;
+
             max-width: 1100px;
 
             margin: 50px auto;
+
         }
 
         .title {
+
             font-size: 30px;
+
             margin-bottom: 30px;
+
         }
 
-        /* کارت متن */
-
         .posts {
+
             display: grid;
 
             grid-template-columns:
                 repeat(auto-fit, minmax(280px, 1fr));
 
             gap: 25px;
+
         }
 
         .post {
+
             background: #181818;
 
             border: 1px solid #292929;
@@ -86,40 +114,69 @@
             overflow: hidden;
 
             transition: 0.2s;
+
         }
 
         .post:hover {
+
             transform: translateY(-5px);
+
         }
 
         .post-image {
+
             width: 100%;
+
             height: 180px;
 
             background: #252525;
 
             display: flex;
+
             align-items: center;
+
             justify-content: center;
 
             color: #777;
+
+            overflow: hidden;
+
+        }
+
+        .post-image img {
+
+            width: 100%;
+
+            height: 100%;
+
+            object-fit: cover;
+
         }
 
         .post-content {
+
             padding: 20px;
+
         }
 
         .post-content h2 {
+
             margin-top: 0;
+
             font-size: 21px;
+
         }
 
         .post-content p {
+
             color: #aaa;
+
             line-height: 1.8;
+
         }
 
         .read-more {
+
             display: inline-block;
 
             margin-top: 10px;
@@ -128,13 +185,24 @@
 
             text-decoration: none;
 
-            font-size: 14px;
+        }
+
+        .message {
+
+            color: #888;
+
+            text-align: center;
+
+            padding: 40px 0;
+
         }
 
     </style>
+
 </head>
 
 <body>
+
 
 <header>
 
@@ -143,9 +211,15 @@
     </div>
 
     <nav>
-        <a href="main.html">خانه</a>
-        <a href="#">درباره</a>
-        <a href="login.html">ورود نویسندگان</a> 
+
+        <a href="main.html">
+            خانه
+        </a>
+
+        <a href="login.html">
+            ورود نویسندگان
+        </a>
+
     </nav>
 
 </header>
@@ -157,69 +231,170 @@
         نوشته‌های تازه
     </h1>
 
+    <div id="posts"
+         class="posts">
 
-    <section class="posts">
+        <div class="message">
+            در حال دریافت نوشته‌ها...
+        </div>
 
-
-        <!-- متن نمونه -->
-
-        <article class="post">
-
-            <div class="post-image">
-                تصویر
-            </div>
-
-            <div class="post-content">
-
-                <h2>
-                    اولین نوشته Paradox
-                </h2>
-
-                <p>
-                    اینجا نوشته‌های منتشرشده
-                    در سایت نمایش داده خواهند شد.
-                </p>
-
-                <a href="#" class="read-more">
-                    ادامه نوشته ←
-                </a>
-
-            </div>
-
-        </article>
-
-
-        <!-- متن نمونه دوم -->
-
-        <article class="post">
-
-            <div class="post-image">
-                تصویر
-            </div>
-
-            <div class="post-content">
-
-                <h2>
-                    یک نوشته دیگر
-                </h2>
-
-                <p>
-                    بعداً این قسمت به پایگاه داده
-                    وصل می‌شود.
-                </p>
-
-                <a href="#" class="read-more">
-                    ادامه نوشته ←
-                </a>
-
-            </div>
-
-        </article>
-
-
-    </section>
+    </div>
 
 </main>
 
+
+<script>
+
+const SUPABASE_URL =
+    "https://ordoglrqdizeisyoupsf.supabase.co";
+
+const SUPABASE_KEY =
+    "sb_publishable_CxL8uf4ajAFpbyCTGpXz3Q_bk23Up5W";
+
+
+const supabaseClient =
+    window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_KEY
+    );
+
+
+async function loadPosts() {
+
+    const container =
+        document.getElementById("posts");
+
+
+    const {
+        data,
+        error
+    } = await supabaseClient
+
+        .from("posts")
+
+        .select(
+            "id,title,content,image_url,created_at"
+        )
+
+        .eq(
+            "status",
+            "published"
+        )
+
+        .order(
+            "created_at",
+            {
+                ascending: false
+            }
+        );
+
+
+    if (error) {
+
+        console.error(error);
+
+        container.innerHTML = `
+            <div class="message">
+                دریافت نوشته‌ها با خطا روبه‌رو شد.
+            </div>
+        `;
+
+        return;
+    }
+
+
+    if (!data || data.length === 0) {
+
+        container.innerHTML = `
+            <div class="message">
+                هنوز نوشته‌ای منتشر نشده است.
+            </div>
+        `;
+
+        return;
+    }
+
+
+    container.innerHTML = "";
+
+
+    data.forEach(post => {
+
+        const article =
+            document.createElement("article");
+
+
+        article.className =
+            "post";
+
+
+        let imageHTML = `
+            <div class="post-image">
+                بدون تصویر
+            </div>
+        `;
+
+
+        /*
+         فعلاً اگر تصویر خصوصی باشد،
+         اینجا تصویر نمایش داده نمی‌شود.
+         در مرحله بعد لینک موقت می‌سازیم.
+        */
+
+
+        article.innerHTML = `
+
+            ${imageHTML}
+
+            <div class="post-content">
+
+                <h2>
+                    ${escapeHtml(post.title)}
+                </h2>
+
+                <p>
+                    ${escapeHtml(
+                        post.content.substring(0, 180)
+                    )}
+                    ...
+                </p>
+
+                <a
+                    class="read-more"
+                    href="post.html?id=${post.id}">
+
+                    ادامه نوشته ←
+
+                </a>
+
+            </div>
+        `;
+
+
+        container.appendChild(article);
+
+    });
+
+}
+
+
+function escapeHtml(text) {
+
+    const div =
+        document.createElement("div");
+
+    div.textContent =
+        text;
+
+    return div.innerHTML;
+
+}
+
+
+loadPosts();
+
+</script>
+
 </body>
+
 </html>
