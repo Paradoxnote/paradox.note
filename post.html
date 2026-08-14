@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>متن | Paradox</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+
+            margin: 0;
+
+            background: #101010;
+
+            color: white;
+
+            font-family: Tahoma, sans-serif;
+
+        }
+
+        header {
+
+            height: 70px;
+
+            background: #181818;
+
+            border-bottom: 1px solid #292929;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            padding: 0 40px;
+
+        }
+
+        .logo {
+
+            font-size: 25px;
+
+            font-weight: bold;
+
+        }
+
+        header a {
+
+            color: #ccc;
+
+            text-decoration: none;
+
+        }
+
+        .container {
+
+            width: 90%;
+
+            max-width: 850px;
+
+            margin: 50px auto;
+
+        }
+
+        .post {
+
+            background: #181818;
+
+            border: 1px solid #292929;
+
+            border-radius: 14px;
+
+            padding: 35px;
+
+        }
+
+        h1 {
+
+            font-size: 34px;
+
+            line-height: 1.5;
+
+            margin-top: 0;
+
+        }
+
+        .date {
+
+            color: #777;
+
+            font-size: 14px;
+
+            margin-bottom: 30px;
+
+        }
+
+        .content {
+
+            color: #ddd;
+
+            font-size: 18px;
+
+            line-height: 2.1;
+
+            white-space: pre-wrap;
+
+        }
+
+        .message {
+
+            text-align: center;
+
+            color: #888;
+
+            padding: 50px;
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<header>
+
+    <div class="logo">
+        Paradox
+    </div>
+
+    <a href="main.html">
+        بازگشت به نوشته‌ها
+    </a>
+
+</header>
+
+
+<main class="container">
+
+    <div id="post">
+
+        <div class="message">
+            در حال دریافت متن...
+        </div>
+
+    </div>
+
+</main>
+
+
+<script>
+
+const SUPABASE_URL =
+    "https://ordoglrqdizeisyoupsf.supabase.co";
+
+
+const SUPABASE_KEY =
+    "sb_publishable_CxL8uf4ajAFpbyCTGpXz3Q_bk23Up5W";
+
+
+const supabaseClient =
+    window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_KEY
+    );
+
+
+
+function escapeHtml(text) {
+
+    const div =
+        document.createElement("div");
+
+    div.textContent =
+        text;
+
+    return div.innerHTML;
+
+}
+
+
+
+async function loadPost() {
+
+    const params =
+        new URLSearchParams(
+            window.location.search
+        );
+
+
+    const postId =
+        params.get("id");
+
+
+    const container =
+        document.getElementById("post");
+
+
+    if (!postId) {
+
+        container.innerHTML = `
+            <div class="message">
+                نوشته پیدا نشد.
+            </div>
+        `;
+
+        return;
+
+    }
+
+
+    const {
+
+        data,
+        error
+
+    } = await supabaseClient
+
+        .from("posts")
+
+        .select(
+            "id,title,content,created_at"
+        )
+
+        .eq(
+            "id",
+            postId
+        )
+
+        .eq(
+            "status",
+            "published"
+        )
+
+        .single();
+
+
+    if (error || !data) {
+
+        console.error(error);
+
+        container.innerHTML = `
+            <div class="message">
+                این نوشته وجود ندارد یا هنوز منتشر نشده است.
+            </div>
+        `;
+
+        return;
+
+    }
+
+
+    const date =
+        new Date(
+            data.created_at
+        ).toLocaleString(
+            "fa-IR"
+        );
+
+
+    container.innerHTML = `
+
+        <article>
+
+            <h1>
+                ${escapeHtml(data.title)}
+            </h1>
+
+            <div class="date">
+                ${date}
+            </div>
+
+            <div class="content">
+                ${escapeHtml(data.content)}
+            </div>
+
+        </article>
+
+    `;
+
+}
+
+
+loadPost();
+
+</script>
+
+
+</body>
+
+</html>
