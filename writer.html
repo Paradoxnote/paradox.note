@@ -280,18 +280,71 @@ async function checkUser() {
 
     const {
         data: { session }
-    } = await supabaseClient.auth.getSession();
+    } = await supabaseClient
+        .auth
+        .getSession();
+
 
     if (!session) {
 
-        document.body.innerHTML =
-            "<h2 style='text-align:center;margin-top:100px'>نشست ورود پیدا نشد.</h2>";
+        window.location.href =
+            "login.html";
 
-        return;
+        return false;
     }
 
-}
 
+    const {
+        data,
+        error
+    } = await supabaseClient
+        .rpc("is_writer");
+
+
+    if (error) {
+
+        console.error(error);
+
+        document.body.innerHTML = `
+            <div style="
+                text-align:center;
+                margin-top:100px;
+                font-family:Tahoma;
+                color:white;
+                background:#101010;
+                min-height:100vh;
+                padding:30px;
+            ">
+                خطا در بررسی دسترسی.
+            </div>
+        `;
+
+        return false;
+    }
+
+
+    if (!data) {
+
+        document.body.innerHTML = `
+            <div style="
+                text-align:center;
+                margin-top:100px;
+                font-family:Tahoma;
+                color:white;
+                background:#101010;
+                min-height:100vh;
+                padding:30px;
+            ">
+                شما اجازه ورود به پنل نویسندگان را ندارید.
+            </div>
+        `;
+
+        return false;
+    }
+
+
+    return true;
+}
 
 checkUser();
 
