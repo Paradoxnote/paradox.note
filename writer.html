@@ -282,10 +282,74 @@ async function logout() {
 
 // فعلاً فقط آزمایشی
 
-function saveDraft() {
+async function saveDraft() {
 
-    document.getElementById("message").innerText =
-        "پیش‌نویس فعلاً در حالت آزمایشی است.";
+    const title =
+        document.getElementById("title").value.trim();
+
+    const content =
+        document.getElementById("content").value.trim();
+
+    const message =
+        document.getElementById("message");
+
+
+    if (!title || !content) {
+
+        message.innerText =
+            "عنوان و متن را وارد کنید.";
+
+        return;
+    }
+
+
+    const {
+        data: { user }
+    } = await supabaseClient.auth.getUser();
+
+
+    if (!user) {
+
+        message.innerText =
+            "نشست ورود پیدا نشد. دوباره وارد شوید.";
+
+        return;
+    }
+
+
+    message.innerText =
+        "در حال ذخیره...";
+
+
+    const { error } =
+        await supabaseClient
+            .from("posts")
+            .insert({
+
+                title: title,
+
+                content: content,
+
+                author_id: user.id,
+
+                status: "draft"
+
+            });
+
+
+    if (error) {
+
+        console.error(error);
+
+        message.innerText =
+            "خطا: " + error.message;
+
+        return;
+    }
+
+
+    message.innerText =
+        "پیش‌نویس با موفقیت ذخیره شد.";
 
 }
 
