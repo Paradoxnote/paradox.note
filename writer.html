@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>پنل نویسنده | Paradox</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: #101010;
+            color: white;
+            font-family: Tahoma, sans-serif;
+        }
+
+        header {
+            height: 70px;
+            background: #181818;
+            border-bottom: 1px solid #292929;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            padding: 0 40px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .logout {
+            background: transparent;
+            border: 1px solid #444;
+            color: #ccc;
+
+            padding: 9px 18px;
+            border-radius: 7px;
+
+            cursor: pointer;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 900px;
+
+            margin: 40px auto;
+        }
+
+        .panel {
+            background: #181818;
+            border: 1px solid #292929;
+
+            border-radius: 14px;
+
+            padding: 30px;
+        }
+
+        h1 {
+            margin-top: 0;
+        }
+
+        label {
+            display: block;
+
+            margin-top: 25px;
+            margin-bottom: 8px;
+
+            color: #ccc;
+        }
+
+        input,
+        textarea {
+            width: 100%;
+
+            background: #101010;
+            color: white;
+
+            border: 1px solid #333;
+            border-radius: 8px;
+
+            padding: 13px;
+
+            font-family: inherit;
+        }
+
+        textarea {
+            min-height: 300px;
+            resize: vertical;
+            line-height: 1.8;
+        }
+
+        input[type="file"] {
+            padding: 10px;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 10px;
+
+            margin-top: 30px;
+        }
+
+        button {
+            padding: 13px 25px;
+
+            border: none;
+            border-radius: 8px;
+
+            cursor: pointer;
+
+            font-family: inherit;
+            font-weight: bold;
+        }
+
+        .save {
+            background: #333;
+            color: white;
+        }
+
+        .publish {
+            background: white;
+            color: #111;
+        }
+
+        #message {
+            margin-top: 20px;
+            color: #aaa;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+
+    <div class="logo">
+        Paradox
+    </div>
+
+    <button class="logout" onclick="logout()">
+        خروج
+    </button>
+
+</header>
+
+
+<main class="container">
+
+    <div class="panel">
+
+        <h1>
+            نوشتن متن جدید
+        </h1>
+
+        <label>
+            عنوان
+        </label>
+
+        <input
+            type="text"
+            id="title"
+            placeholder="عنوان متن"
+        >
+
+
+        <label>
+            متن
+        </label>
+
+        <textarea
+            id="content"
+            placeholder="متن خود را اینجا بنویسید..."
+        ></textarea>
+
+
+        <label>
+            تصویر
+        </label>
+
+        <input
+            type="file"
+            id="image"
+            accept="image/*"
+        >
+
+
+        <label>
+            فایل پیوست
+        </label>
+
+        <input
+            type="file"
+            id="attachment"
+        >
+
+
+        <div class="buttons">
+
+            <button
+                class="save"
+                onclick="saveDraft()"
+            >
+                ذخیره پیش‌نویس
+            </button>
+
+            <button
+                class="publish"
+                onclick="publishPost()"
+            >
+                ارسال برای انتشار
+            </button>
+
+        </div>
+
+
+        <div id="message"></div>
+
+    </div>
+
+</main>
+
+
+<script>
+
+const SUPABASE_URL =
+    "https://ordoglrqdizeisyoupsf.supabase.co/rest/v1/";
+
+const SUPABASE_KEY =
+    "sb_publishable_CxL8uf4ajAFpbyCTGpXz3Q_bk23Up5W";
+
+
+const supabaseClient =
+    window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_KEY
+    );
+
+
+// بررسی ورود نویسنده
+
+async function checkUser() {
+
+    const {
+        data: { user }
+    } = await supabaseClient.auth.getUser();
+
+
+    if (!user) {
+
+        window.location.href =
+            "login.html";
+
+    }
+
+}
+
+
+checkUser();
+
+
+// خروج
+
+async function logout() {
+
+    await supabaseClient.auth.signOut();
+
+    window.location.href =
+        "login.html";
+
+}
+
+
+// فعلاً فقط آزمایشی
+
+function saveDraft() {
+
+    document.getElementById("message").innerText =
+        "پیش‌نویس فعلاً در حالت آزمایشی است.";
+
+}
+
+
+function publishPost() {
+
+    document.getElementById("message").innerText =
+        "ارسال متن فعلاً در حالت آزمایشی است.";
+
+}
+
+</script>
+
+</body>
+
+</html>
