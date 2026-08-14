@@ -492,14 +492,126 @@ async function saveDraft() {
 }
 
 
-function publishPost() {
+async function publishPost() {
 
-    document.getElementById("message").innerText =
-        "ارسال متن فعلاً در حالت آزمایشی است.";
+    const title =
+        document.getElementById("title").value.trim();
 
-}
+    const content =
+        document.getElementById("content").value.trim();
 
-</script>
+    const image =
+        document.getElementById("image").files[0];
+
+    const attachment =
+        document.getElementById("attachment").files[0];
+
+    const message =
+        document.getElementById("message");
+
+
+    if (!title || !content) {
+        message.innerText =
+            "عنوان و متن را وارد کنید.";
+        return;
+    }
+
+
+    const {
+        data: { user }
+    } = await supabaseClient.auth.getUser();
+
+
+    if (!user) {
+        message.innerText =
+            "نشست ورود پیدا نشد.";
+        return;
+    }
+
+
+    try {
+
+        message.innerText =
+            "در حال آماده‌سازی...";
+
+
+        let imagePath = null;
+        let filePath = null;
+
+
+        if (image) {
+
+            imagePath =
+                await uploadToStorage(
+                    image,
+                    "images",
+                    user.id
+                );
+
+        }
+
+
+        if (attachment) {
+
+            filePath =
+                await uploadToStorage(
+                    attachment,
+                    "files",
+                    user.id
+                );
+
+        }
+
+
+        const { error } =
+            await supabaseClient
+                .from("posts")
+                .insert({
+
+                    title: title,
+
+                    content: content,
+
+                    image_url: imagePath,
+
+                    file_url: filePath,
+
+                    file_name:
+                        attachment
+                            ? attachment.name
+                            : null,
+
+                    author_id: user.id,
+
+                    status: "pending"
+
+                });
+
+
+        if (error) {
+            throw error;
+        }
+
+
+        message.innerText =
+            "متن برای بررسی مدیر فرستاده شد.";
+
+        document.getElementById("title").value = "";
+        document.getElementById("content").value = "";
+        document.getElementById("image").value = "";
+        document.getElementById("attachment").value = "";
+
+
+    } catch (error) {
+
+        console.error(error);
+
+        message.innerText =
+            "خطا: " + error.message;
+
+    }
+
+</script>            
 
 </body>
 
