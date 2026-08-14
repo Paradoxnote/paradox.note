@@ -169,16 +169,15 @@ async function login() {
 
         });
 
+if (error) {
 
-    if (error) {
+    message.innerText =
+        error.message;
 
-        message.innerText =
-            "ورود ناموفق بود.";
+    console.error(error);
 
-        console.error(error);
-
-        return;
-    }
+    return;
+}
 
 
     message.innerText =
