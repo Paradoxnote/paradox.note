@@ -244,7 +244,35 @@ const supabaseClient =
         SUPABASE_URL,
         SUPABASE_KEY
     );
+async function uploadToStorage(file, bucket, userId) {
 
+    if (!file) {
+        return null;
+    }
+
+    const safeName =
+        file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+
+    const filePath =
+        userId + "/" +
+        Date.now() + "-" +
+        safeName;
+
+
+    const { error } =
+        await supabaseClient
+            .storage
+            .from(bucket)
+            .upload(filePath, file);
+
+
+    if (error) {
+        throw error;
+    }
+
+
+    return filePath;
+}
 
 // بررسی ورود نویسنده
 
@@ -290,6 +318,12 @@ async function saveDraft() {
     const content =
         document.getElementById("content").value.trim();
 
+    const image =
+        document.getElementById("image").files[0];
+
+    const attachment =
+        document.getElementById("attachment").files[0];
+
     const message =
         document.getElementById("message");
 
@@ -301,6 +335,110 @@ async function saveDraft() {
 
         return;
     }
+
+
+    const {
+        data: { user }
+    } = await supabaseClient.auth.getUser();
+
+
+    if (!user) {
+
+        message.innerText =
+            "نشست ورود پیدا نشد.";
+
+        return;
+    }
+
+
+    try {
+
+        message.innerText =
+            "در حال آپلود فایل‌ها...";
+
+
+        // آپلود تصویر
+
+        let imagePath = null;
+
+        if (image) {
+
+            imagePath =
+                await uploadToStorage(
+                    image,
+                    "images",
+                    user.id
+                );
+
+        }
+
+
+        // آپلود فایل
+
+        let filePath = null;
+
+        if (attachment) {
+
+            filePath =
+                await uploadToStorage(
+                    attachment,
+                    "files",
+                    user.id
+                );
+
+        }
+
+
+        message.innerText =
+            "در حال ذخیره نوشته...";
+
+
+        // ذخیره اطلاعات در جدول posts
+
+        const { error } =
+            await supabaseClient
+                .from("posts")
+                .insert({
+
+                    title: title,
+
+                    content: content,
+
+                    image_url: imagePath,
+
+                    file_url: filePath,
+
+                    file_name:
+                        attachment
+                            ? attachment.name
+                            : null,
+
+                    author_id: user.id,
+
+                    status: "draft"
+
+                });
+
+
+        if (error) {
+            throw error;
+        }
+
+
+        message.innerText =
+            "نوشته و فایل‌ها با موفقیت ذخیره شدند.";
+
+
+    } catch (error) {
+
+        console.error(error);
+
+        message.innerText =
+            "خطا: " + error.message;
+
+    }
+
+}
 
 
     const {
