@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>ورود نویسندگان | Paradox</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+
+            background: #101010;
+            color: white;
+
+            font-family: Tahoma, sans-serif;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .login-box {
+            width: 90%;
+            max-width: 400px;
+
+            background: #181818;
+
+            padding: 35px;
+
+            border-radius: 14px;
+
+            border: 1px solid #292929;
+        }
+
+        h1 {
+            text-align: center;
+            margin-top: 0;
+            margin-bottom: 30px;
+        }
+
+        input {
+            width: 100%;
+
+            padding: 14px;
+
+            margin-bottom: 15px;
+
+            background: #101010;
+            color: white;
+
+            border: 1px solid #333;
+            border-radius: 8px;
+
+            outline: none;
+        }
+
+        button {
+            width: 100%;
+
+            padding: 14px;
+
+            border: none;
+            border-radius: 8px;
+
+            background: white;
+            color: #111;
+
+            font-size: 16px;
+            font-weight: bold;
+
+            cursor: pointer;
+        }
+
+        button:hover {
+            opacity: 0.85;
+        }
+
+        .message {
+            text-align: center;
+            margin-top: 15px;
+            color: #aaa;
+        }
+
+        .back {
+            display: block;
+
+            text-align: center;
+
+            margin-top: 20px;
+
+            color: #aaa;
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="login-box">
+
+    <h1>ورود نویسندگان</h1>
+
+    <input
+        type="email"
+        id="email"
+        placeholder="ایمیل"
+    >
+
+    <input
+        type="password"
+        id="password"
+        placeholder="رمز عبور"
+    >
+
+    <button onclick="login()">
+        ورود
+    </button>
+
+    <div class="message" id="message"></div>
+
+    <a class="back" href="main.html">
+        بازگشت به Paradox
+    </a>
+
+</div>
+
+<script>
+
+async function login() {
+
+    const email =
+        document.getElementById("email").value;
+
+    const password =
+        document.getElementById("password").value;
+
+    const message =
+        document.getElementById("message");
+
+    message.innerText = "در حال ورود...";
+
+    // بعداً اتصال واقعی Supabase را اینجا قرار می‌دهیم.
+
+    message.innerText =
+        "اتصال Supabase هنوز تنظیم نشده است.";
+
+}
+
+</script>
+
+</body>
+
+</html>
